@@ -1,0 +1,6 @@
+# .env for config
+.env
+# venv environment
+env
+# pycache
+__pycache__
