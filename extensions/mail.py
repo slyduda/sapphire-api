@@ -37,7 +37,7 @@ def create_message(sender:Union[str, Tuple], receiver:[str, Tuple], plain=str, h
     message["To"] = format_header_address(receiver)
     message["Subject"] = "Meeting Scheduled"
     message.attach(MIMEText(plain, "plain"))
-    message.attach(MIMEText(plain, "html"))
+    message.attach(MIMEText(html, "html"))
     
     if ical:
         part = MIMEBase("application", "octet-stream")
@@ -71,7 +71,7 @@ def create_meeting(start:datetime, end:datetime, summary:str, location:str, desc
     return caldata
     
 
-def save_event(host:str, port:int, username:str, password:str, caluser:User, caldata:Calendar, attendees:list[Union[str, Tuple]]):
+def save_event(host:str, port:int, username:str, password:str, caluser:User, caldata:Calendar, attendees:list[Union[str, Tuple]], body:str, html:str):
     
     # Connect to SMTP
     context = ssl.create_default_context()
@@ -81,7 +81,7 @@ def save_event(host:str, port:int, username:str, password:str, caluser:User, cal
         server.login(username, password)
         
         print('Saving to User\'s calendar')
-        caluser.calendar.save_with_invites(caldata, attendees=[(caluser.name, caluser.email), *attendees])
+        caluser.calendar.save_with_invites(caldata, attendees=[caluser.vcal, *attendees])
         
         print('Sending out invites to Attendees')
         for attendee in attendees:
