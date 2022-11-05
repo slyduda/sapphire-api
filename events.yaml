@@ -1,0 +1,7 @@
+- GeneralChats:
+    start:
+      hour: 9
+      minute: 0
+      second: 0
+    duration: 3600
+    slot_duration: 900

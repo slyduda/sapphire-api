@@ -4,12 +4,7 @@ import quart.flask_patch
 from quart import Quart
 
 from routes.event import event
-
-class DictToObjectConverter:
-    def __init__(self, d=None):
-        if d is not None:
-            for key, value in d.items():
-                setattr(self, key, value)
+from utils.general import DictToObjectConverter
 
 app = Quart(__name__)
 app.config.from_object(DictToObjectConverter(dotenv_values(".env")))
