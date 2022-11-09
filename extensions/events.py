@@ -161,6 +161,7 @@ class User():
 
         return event_datetime_ranges
 
+    # NEED TO FIX THE GET_EVENT_DICT LOCAL REFS
     def get_event_dict(self, start:datetime, end:datetime):
         try:
             events = self.calendar.date_search(

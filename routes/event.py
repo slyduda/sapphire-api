@@ -8,6 +8,10 @@ from pytz import timezone
 
 from extensions.mail import create_meeting, save_event
 from extensions.events import User, parse_meeting_block_file, get_all_time_slots, get_available_slots
+from extensions.serializer import serializer
+
+from utils.validation import validate_email
+from utils.mail_text import SCHEDULED
 
 event = Blueprint('event', __name__)
 
@@ -67,14 +71,19 @@ async def create_event():
     date = data.get('date')
     note = data.get('note')
     
-    required = [name, email, date]
+    # Check for required
+    required = [name, email, date, meeting_id]
     if any(x is None for x in required):
         return jsonify({'error': 'Missing required fields'}), 400
 
-    # simple email validation
-    # simple name and note length checks (large requests should be filtered by quart)
+    # Check for valid parameters
+    if not validate_email(email):
+        return jsonify({'error': 'invalid_email'})
+    if len(name) > 100:
+        return jsonify({'error': 'invalid_name'})
+    if len(note) > 250:
+        return jsonify({'error': 'invalid_note'})
 
-    # Validate date
     start = datetime.fromtimestamp(date / 1000.0)
     # We can do some simple validation here like making sure it is a legit datetime and not somethign silly
     
@@ -103,34 +112,24 @@ async def create_event():
         }
     
 
+    # Check to see if meeting_id and start are valid
     meeting_data = available_slots.get(meeting_id)
     if not meeting_data:
         return jsonify({'error': 'meeting_id_existence'}), 400
-
     slots = meeting_data.get('slots')
     if not datetime.strftime(start, '%d/%m/%y %H:%M:%S.%f') in [datetime.strftime(slot, '%d/%m/%y %H:%M:%S.%f') for slot in slots]:
         return jsonify({'error': 'meeting_start_existence'}), 200
 
-    # Else continue along with the rest
 
-    event_name = f'{name} and Sylvester Duda'
     # Create all of the event information
-    event_location = f'https://meet.jit.si/{token_hex(12)}'
-    event_cancellation = "https://api.slyduda.com/v1/cancellation/serialized-payload"
-    event_description = f"""\
-Event Name: {event_name}
-
-Location: {event_location}
-
-Need to make changes to this event?
-Cancel: {event_cancellation}  (Does not work right now)
-
-Powered by slyduda.com
-    """
+    event_name = f'{name} and Sylvester Duda'
+    event_location = f'https://meet.jit.si/{token_hex(10)}'
+    fingerprint = serializer.dumps({'meeting': meeting_data.get('id'), 'date': date, 'email': email}, salt='cancellation')
+    event_cancellation = f"https://api.slyduda.com/v1/cancellation/{fingerprint}"
+    event_description = SCHEDULED['body'].format(event_name=meeting_data.get('id'), location=event_location, note=note, cancellation=event_cancellation)
 
     # Make the calendar data
     caldata = create_meeting(start.astimezone(LOCALTZ), start.astimezone(LOCALTZ) + timedelta(seconds=meeting_data['slot_duration']), event_name, event_location, event_description)
-    # Make the User
 
     BODY = 'This is an email with attachment sent from Python\n\n' + event_description 
     HTML = """\
