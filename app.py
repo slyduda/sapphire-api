@@ -9,7 +9,7 @@ from utils.general import DictToObjectConverter
 app = Quart(__name__)
 app.config.from_object(DictToObjectConverter(dotenv_values(".env")))
 app.register_blueprint(event, url_prefix='/v1')
-print(app.config)
+print(app.config.get('ENV'))
 
 @app.route('/', methods=['GET'])
 async def index():
