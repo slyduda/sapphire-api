@@ -2,6 +2,7 @@ from dotenv import dotenv_values
 
 import quart.flask_patch
 from quart import Quart
+from quart_cors import cors
 
 from routes.event import event
 from utils.general import DictToObjectConverter
@@ -10,6 +11,13 @@ app = Quart(__name__)
 app.config.from_object(DictToObjectConverter(dotenv_values(".env")))
 app.register_blueprint(event, url_prefix='/v1')
 print(app.config.get('ENV'))
+
+app = cors(app,
+    allow_headers=["content-type", "x-csrf-token"],
+    allow_credentials=True,
+    allow_methods=["POST", "PUT", "DELETE", "GET"],
+    allow_origin=['*']
+    )
 
 @app.route('/', methods=['GET'])
 async def index():

@@ -28,6 +28,7 @@ pytz==2022.5
 pytz-deprecation-shim==0.1.0.post0
 PyYAML==6.0
 quart==0.18.3
+Quart-CORS==0.5.0
 requests==2.28.1
 six==1.16.0
 toml==0.10.2
