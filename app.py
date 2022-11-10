@@ -16,7 +16,7 @@ app = cors(app,
     allow_headers=["content-type", "x-csrf-token"],
     allow_credentials=True,
     allow_methods=["POST", "PUT", "DELETE", "GET"],
-    allow_origin=['*']
+    allow_origin='*'
     )
 
 @app.route('/', methods=['GET'])
