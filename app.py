@@ -5,11 +5,13 @@ from quart import Quart
 from quart_cors import cors
 
 from routes.event import event
+from routes.contact import contact
 from utils.general import DictToObjectConverter
 
 app = Quart(__name__)
 app.config.from_object(DictToObjectConverter(dotenv_values(".env")))
 app.register_blueprint(event, url_prefix='/v1')
+app.register_blueprint(contact, url_prefix='/v1')
 print(app.config.get('ENV'))
 
 app = cors(app,

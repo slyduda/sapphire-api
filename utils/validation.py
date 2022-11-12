@@ -143,6 +143,9 @@ def validate_email(text, message=False):
             else: return False
     return True
 
+def validate_telephone(text, message=False):  
+    return True
+
 
 def validate_handle(text, message=False):
     """
